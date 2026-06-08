@@ -1,0 +1,31 @@
+@app.get("/produtos")
+def produtos(request: Request, db: Session = Depends(get_db)):
+    produtos = db.query(models.Produto).all()
+    categorias = db.query(models.Categoria).all()
+
+    return templates.TemplateResponse("produtos.html", {
+        "request": request,
+        "produtos": produtos,
+        "categorias": categorias
+    })
+
+
+@app.post("/produto")
+def criar_produto(
+    nome: str = Form(...),
+    preco: float = Form(...),
+    estoque: int = Form(...),
+    categoria_id: int = Form(...),
+    db: Session = Depends(get_db)
+):
+    prod = models.Produto(
+        nome=nome,
+        preco=preco,
+        estoque=estoque,
+        categoria_id=categoria_id
+    )
+
+    db.add(prod)
+    db.commit()
+
+    return RedirectResponse("/produtos", status_code=302)
