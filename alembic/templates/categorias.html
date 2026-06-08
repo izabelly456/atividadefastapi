@@ -1,0 +1,19 @@
+@app.get("/")
+def home(request: Request, db: Session = Depends(get_db)):
+    categorias = db.query(models.Categoria).all()
+    return templates.TemplateResponse("categorias.html", {
+        "request": request,
+        "categorias": categorias
+    })
+
+
+@app.post("/categoria")
+def criar_categoria(
+    nome: str = Form(...),
+    descricao: str = Form(None),
+    db: Session = Depends(get_db)
+):
+    cat = models.Categoria(nome=nome, descricao=descricao)
+    db.add(cat)
+    db.commit()
+    return RedirectResponse("/", status_code=302)
