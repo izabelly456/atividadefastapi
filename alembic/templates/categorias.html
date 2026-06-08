@@ -1,19 +1,33 @@
-@app.get("/")
-def home(request: Request, db: Session = Depends(get_db)):
-    categorias = db.query(models.Categoria).all()
-    return templates.TemplateResponse("categorias.html", {
-        "request": request,
-        "categorias": categorias
-    })
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Categorias</title>
+</head>
+<body>
 
+<h1>Categorias</h1>
 
-@app.post("/categoria")
-def criar_categoria(
-    nome: str = Form(...),
-    descricao: str = Form(None),
-    db: Session = Depends(get_db)
-):
-    cat = models.Categoria(nome=nome, descricao=descricao)
-    db.add(cat)
-    db.commit()
-    return RedirectResponse("/", status_code=302)
+<form method="post" action="/categoria">
+  <input name="nome" placeholder="Nome">
+  <input name="descricao" placeholder="Descrição">
+  <button>Criar</button>
+</form>
+
+<ul>
+  {% for c in categorias %}
+    <li>
+      {{ c.nome }} - {{ c.descricao }}
+
+      <ul>
+        {% for p in c.produtos %}
+          <li>{{ p.nome }} - R$ {{ p.preco }}</li>
+        {% endfor %}
+      </ul>
+    </li>
+  {% endfor %}
+</ul>
+
+<a href="/produtos">Ver produtos</a>
+
+</body>
+</html>
