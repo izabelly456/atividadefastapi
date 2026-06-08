@@ -1,31 +1,39 @@
-@app.get("/produtos")
-def produtos(request: Request, db: Session = Depends(get_db)):
-    produtos = db.query(models.Produto).all()
-    categorias = db.query(models.Categoria).all()
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Produtos</title>
+</head>
+<body>
 
-    return templates.TemplateResponse("produtos.html", {
-        "request": request,
-        "produtos": produtos,
-        "categorias": categorias
-    })
+<h1>Produtos</h1>
 
+<form method="post" action="/produto">
 
-@app.post("/produto")
-def criar_produto(
-    nome: str = Form(...),
-    preco: float = Form(...),
-    estoque: int = Form(...),
-    categoria_id: int = Form(...),
-    db: Session = Depends(get_db)
-):
-    prod = models.Produto(
-        nome=nome,
-        preco=preco,
-        estoque=estoque,
-        categoria_id=categoria_id
-    )
+  <input name="nome" placeholder="Nome">
+  <input name="preco" placeholder="Preço">
+  <input name="estoque" placeholder="Estoque">
 
-    db.add(prod)
-    db.commit()
+  <select name="categoria_id">
+    {% for c in categorias %}
+      <option value="{{ c.id }}">{{ c.nome }}</option>
+    {% endfor %}
+  </select>
 
-    return RedirectResponse("/produtos", status_code=302)
+  <button>Criar</button>
+</form>
+
+<ul>
+  {% for p in produtos %}
+    <li>
+      {{ p.nome }} -
+      R$ {{ p.preco }} -
+      Estoque: {{ p.estoque }} -
+      Categoria: {{ p.categoria.nome }}
+    </li>
+  {% endfor %}
+</ul>
+
+<a href="/">Voltar categorias</a>
+
+</body>
+</html>
